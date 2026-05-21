@@ -18,6 +18,7 @@ dependencies {
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     compileOnly 'it.unimi.dsi:fastutil:8.5.16'
+    compileOnly 'net.luckperms:api:5.4'
 
     compileOnly 'net.william278.huskhomes:huskhomes-bukkit:4.9.9'
     compileOnly 'net.william278.husktowns:husktowns-bukkit:3.1-753d263'

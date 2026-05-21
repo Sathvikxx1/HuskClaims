@@ -21,6 +21,9 @@ package net.william278.huskclaims.user;
 
 import io.papermc.lib.PaperLib;
 import lombok.Getter;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.platform.PlayerAdapter;
+import net.luckperms.api.util.Tristate;
 import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
@@ -30,8 +33,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,6 +44,7 @@ import java.util.Optional;
 public class BukkitUser extends OnlineUser {
 
     private final Player bukkitPlayer;
+    private final PlayerAdapter<Player> adapter = LuckPermsProvider.get().getPlayerAdapter(Player.class);
 
     private BukkitUser(@NotNull Player bukkitPlayer, @NotNull HuskClaims plugin) {
         super(bukkitPlayer.getName(), bukkitPlayer.getUniqueId(), plugin);
@@ -68,14 +70,21 @@ public class BukkitUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String permission) {
-        return bukkitPlayer.hasPermission(permission);
+        return adapter.getUser(bukkitPlayer)
+                .getCachedData()
+                .getPermissionData()
+                .checkPermission(permission)
+                .asBoolean();
     }
 
     @Override
     public boolean hasPermission(@NotNull String permission, boolean isDefault) {
-        return bukkitPlayer.hasPermission(new Permission(
-                permission, isDefault ? PermissionDefault.TRUE : PermissionDefault.OP
-        ));
+        final Tristate result = adapter.getUser(bukkitPlayer)
+                .getCachedData()
+                .getPermissionData()
+                .checkPermission(permission);
+
+        return result == Tristate.UNDEFINED ? isDefault : result.asBoolean();
     }
 
     @Override
